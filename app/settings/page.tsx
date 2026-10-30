@@ -23,7 +23,7 @@ export default function SettingsPage() {
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const [googleClientId, setGoogleClientId] = useState('');
   const [timezone, setTimezone] = useState('Asia/Kolkata');
-  const [appName, setAppName] = useState('Antigravity Task & Requirement Portal');
+  const [appName, setAppName] = useState('UPPCL Task & Requirement Portal');
 
   const [saving, setSaving] = useState(false);
   const [resetting, setResetting] = useState(false);

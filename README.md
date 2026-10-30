@@ -1,8 +1,8 @@
-# Task & Requirement Management Web Portal
+# UPPCL Task & Requirement Management Portal
 
 Enterprise-grade **Task & Requirement Management System** built with Next.js 14 App Router, Tailwind CSS, Lucide Icons, Prisma ORM, and Google Gemini AI integration.
 
-The portal provides end-to-end two-way traceability between original requirement documents (Google Docs, DOCX, PDF, XLSX, TXT), AI-extracted requirements, generated actionable tasks, assigned team members, and final deliverables.
+The portal provides complete two-way traceability between original requirement documents (Google Docs, DOCX, PDF, XLSX, TXT), AI-extracted requirements, generated actionable tasks, assigned team members, and final deliverables.
 
 ---
 
@@ -90,29 +90,30 @@ The portal provides end-to-end two-way traceability between original requirement
 - Node.js v18+ or v20+
 - npm v10+
 
-### 2. Location
-The application is located at:
-```
-C:\Users\acer\.gemini\antigravity\scratch\task-requirement-portal
+### 2. Setup & Installation
+```bash
+git clone https://github.com/ritikd108/UPPCLTaskManager.git
+cd UPPCLTaskManager
+npm install
 ```
 
 ### 3. Database Initialization & Seed
-The database has already been initialized and populated with realistic demonstration data (Projects, Users, Requirement Documents, Tasks, Dependencies, Comments, and Notifications).
-
-To re-seed at any time:
-```powershell
+Initialize the database and populate it with realistic demonstration data (Projects, Users, Requirement Documents, Tasks, Dependencies, Comments, and Notifications):
+```bash
+npx prisma db push
 node prisma/seed.js
 ```
 *(Or click the "Reset & Reseed Demo Database" button inside the Administrative Settings page)*
 
 ### 4. Running the Application
-To run in production mode:
-```powershell
-node node_modules/next/dist/bin/next start -p 3000
+To run in development mode:
+```bash
+npm run dev
 ```
-Or in development mode:
-```powershell
-node node_modules/next/dist/bin/next dev -p 3000
+To run in production mode:
+```bash
+npm run build
+npm start
 ```
 
 Open your browser at:
@@ -139,7 +140,7 @@ http://localhost:3000
 
 ## 👥 Seed Accounts for Testing
 
-Use the Persona / Role Switcher in the top navigation bar to test all user roles with a single click:
+Use the **Persona / Role Switcher** in the top navigation bar to switch between user roles instantly:
 
 | Name | Role | Email | Designation |
 |---|---|---|---|

@@ -60,8 +60,8 @@ export default function Sidebar() {
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div className="leading-tight truncate">
-              <span className="font-bold text-slate-900 dark:text-white text-base block tracking-tight">Antigravity</span>
-              <span className="text-xs text-brand-600 dark:text-brand-400 font-medium tracking-wide">Tasks & Requirements</span>
+              <span className="font-bold text-slate-900 dark:text-white text-base block tracking-tight">UPPCL</span>
+              <span className="text-xs text-brand-600 dark:text-brand-400 font-medium tracking-wide">Task Manager</span>
             </div>
           </Link>
         )}

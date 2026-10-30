@@ -524,7 +524,7 @@ Deliverable: Fast PDF generation microservice and downloadable storage link.
   // Default system settings
   await prisma.systemSetting.createMany({
     data: [
-      { key: 'APP_NAME', value: 'Antigravity Task & Requirement Portal' },
+      { key: 'APP_NAME', value: 'UPPCL Task & Requirement Portal' },
       { key: 'DEFAULT_THEME', value: 'light' },
       { key: 'TIMEZONE', value: 'Asia/Kolkata' },
       { key: 'GEMINI_API_KEY', value: '' },

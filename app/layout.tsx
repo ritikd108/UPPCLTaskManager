@@ -7,7 +7,7 @@ import TaskModal from '@/components/TaskModal';
 import DocumentUploadModal from '@/components/DocumentUploadModal';
 
 export const metadata: Metadata = {
-  title: 'Antigravity - Task & Requirement Management Portal',
+  title: 'Task & Requirement Management Portal',
   description: 'Enterprise Task & Requirement Management System with AI-powered document extraction and traceability.',
 };
 
