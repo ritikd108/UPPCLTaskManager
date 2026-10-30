@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String          @id @default(cuid())
+  userId       String          @unique // e.g. USR-001
+  name         String
+  email        String          @unique
+  password     String          @default("password123")
+  role         String          @default("USER") // ADMIN, MANAGER, USER
+  department   String?
+  designation  String?
+  avatar       String?
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  assignedTasks  Task[]          @relation("AssignedTasks")
+  createdTasks   Task[]          @relation("CreatedTasks")
+  managedProjects Project[]      @relation("ManagedProjects")
+  memberships    ProjectMember[]
+  uploadedDocs   RequirementDoc[]
+  comments       TaskComment[]
+  attachments    TaskAttachment[]
+  historyEntries TaskHistory[]
+  notifications  Notification[]
+  activityLogs   ActivityLog[]
+}
+
+model Project {
+  id              String           @id @default(cuid())
+  projectId       String           @unique // e.g. PRJ-101
+  name            String
+  code            String           @unique // e.g. JHATPAT
+  description     String?
+  status          String           @default("Active") // Active, In Planning, On Hold, Completed
+  startDate       DateTime?
+  targetDate      DateTime?
+  managerId       String?
+  manager         User?            @relation("ManagedProjects", fields: [managerId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  members         ProjectMember[]
+  tasks           Task[]
+  requirementDocs RequirementDoc[]
+  categories      Category[]
+}
+
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   @default("Member") // Lead, QA, Developer, Analyst
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, userId])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#0c8ee9")
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+}
+
+model RequirementDoc {
+  id           String        @id @default(cuid())
+  docId        String        @unique // e.g. DOC-1001
+  title        String
+  description  String?
+  fileType     String        // DOCX, PDF, XLSX, TXT, GOOGLE_DOC
+  filePath     String?
+  fileSize     Int?
+  googleDocId  String?
+  googleDocUrl String?
+  version      String        @default("1.0")
+  status       String        @default("Active") // Draft, Active, Archived
+  rawContent   String?
+  projectId    String
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedById String
+  uploadedBy   User          @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  requirements Requirement[]
+  tasks        Task[]
+}
+
+model Requirement {
+  id             String          @id @default(cuid())
+  reqId          String          @unique // e.g. REQ-201
+  documentId     String
+  document       RequirementDoc  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  title          String
+  description    String
+  sourceSection  String?         // e.g. "Section 3.2: Payment Gateway"
+  sourcePage     String?
+  priority       String          @default("Medium") // Critical, High, Medium, Low
+  deliverable    String?
+  dependencies   String?
+  analysisStatus String          @default("Pending") // Pending, Reviewed, Approved, Rejected
+  changeType     String?         // Unchanged, Added, Modified, Removed
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  tasks          Task[]
+}
+
+model Task {
+  id               String          @id @default(cuid())
+  taskId           String          @unique // e.g. TSK-501
+  title            String
+  description      String?
+  projectId        String
+  project          Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  categoryId       String?
+  category         Category?       @relation(fields: [categoryId], references: [id])
+  assignedToId     String?
+  assignedTo       User?           @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  createdById      String
+  createdBy        User            @relation("CreatedTasks", fields: [createdById], references: [id])
+  priority         String          @default("Medium") // Critical, High, Medium, Low
+  status           String          @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED
+  startDate        DateTime?
+  dueDate          DateTime
+  completionDate   DateTime?
+  deliverable      String?
+  remarks          String?
+  sourceType       String          @default("MANUAL") // MANUAL, REQUIREMENT_DOC
+  requirementDocId String?
+  requirementDoc   RequirementDoc? @relation(fields: [requirementDocId], references: [id])
+  requirementId    String?
+  requirement      Requirement?    @relation(fields: [requirementId], references: [id])
+  sourceReference  String?         // Section or page reference
+  isRecurring      Boolean         @default(false)
+  recurrenceRule   String?         // DAILY, WEEKLY, MONTHLY, YEARLY
+  recurrenceNext   DateTime?
+  isArchived       Boolean         @default(false)
+  isDeleted        Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  dependencies     TaskDependency[] @relation("TaskDependsOn")
+  dependants       TaskDependency[] @relation("PrerequisiteTasks")
+  comments         TaskComment[]
+  attachments      TaskAttachment[]
+  history          TaskHistory[]
+}
+
+model TaskDependency {
+  id              String   @id @default(cuid())
+  taskId          String
+  task            Task     @relation("TaskDependsOn", fields: [taskId], references: [id], onDelete: Cascade)
+  dependsOnTaskId String
+  dependsOnTask   Task     @relation("PrerequisiteTasks", fields: [dependsOnTaskId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+
+  @@unique([taskId, dependsOnTaskId])
+}
+
+model TaskComment {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model TaskAttachment {
+  id           String   @id @default(cuid())
+  taskId       String
+  task         Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  fileName     String
+  fileUrl      String
+  fileSize     Int?
+  fileType     String?
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+}
+
+model TaskHistory {
+  id         String   @id @default(cuid())
+  taskId     String
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  changeType String   // STATUS_CHANGE, PRIORITY_CHANGE, ASSIGNMENT_CHANGE, DEADLINE_CHANGE, CREATED, UPDATED
+  oldValue   String?
+  newValue   String?
+  remarks    String?
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   // TASK_ASSIGNED, DEADLINE_APPROACHING, TASK_OVERDUE, STATUS_CHANGED, DOC_UPLOADED, AI_ANALYSIS_COMPLETE, APPROVAL_PENDING
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   // e.g. "Created Task TSK-501", "Uploaded Requirement Document DOC-1001"
+  entityType String   // TASK, PROJECT, DOCUMENT, REQUIREMENT, USER
+  entityId   String
+  details    String?
+  createdAt  DateTime @default(now())
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
